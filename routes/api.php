@@ -17,6 +17,9 @@ use App\Http\Controllers\FaceRecognitionController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('/recognize', function () {
+    return response()->json(['message' => 'Route found']);
+});
 Route::post('/recognize', [FaceRecognitionController::class, 'recognize']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
