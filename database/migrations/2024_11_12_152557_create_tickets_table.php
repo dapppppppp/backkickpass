@@ -9,20 +9,24 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('tickets', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke tabel users
-            $table->string('event'); // Nama pertandingan atau event
-            $table->date('date'); // Tanggal pertandingan
-            $table->string('seat'); // Tempat duduk
-            $table->string('qr_code')->nullable(); // QR code tiket
-            $table->enum('status', ['active', 'used'])->default('active'); // Status tiket
-            $table->timestamps();
-        });
-        
-    }
+    public function up()
+{
+    Schema::create('tickets', function (Blueprint $table) {
+        $table->id();
+        $table->string('title');
+        $table->string('location');
+        $table->date('date');
+        $table->time('time');
+        $table->string('price_tribun');
+        $table->integer('stock_tribun');
+        $table->string('price_vip');
+        $table->integer('stock_vip');
+        $table->string('banner')->nullable();
+        $table->string('team1_logo')->nullable();
+        $table->string('team2_logo')->nullable();
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

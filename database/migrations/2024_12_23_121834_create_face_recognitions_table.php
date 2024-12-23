@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::create('users', function (Blueprint $table) {
+    Schema::create('face_recognitions', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->string('nik')->unique();
         $table->string('name');
-        $table->string('email')->unique();
-        $table->string('phone')->nullable();
-        $table->string('username')->unique();
-        $table->string('password');
-        $table->string('role')->default('user'); // user or gatekeeper
+        $table->string('address');
         $table->string('photo')->nullable();
         $table->timestamps();
     });
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('face_recognitions');
     }
 };

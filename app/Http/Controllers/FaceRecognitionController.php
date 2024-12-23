@@ -3,33 +3,68 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
+use App\Models\FaceRecognition;
 
 class FaceRecognitionController extends Controller
 {
-    public function recognize(Request $request)
+    public function index()
     {
-        $this->validate($request, [
-            'image' => 'required|image|mimes:jpeg,png,jpg'
+        $faces = FaceRecognition::all();
+        return response()->json($faces);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'nik' => 'required|string|unique:face_recognitions',
+            'name' => 'required|string',
+            'address' => 'required|string',
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $image = $request->file('image');
+        // Simpan foto ke storage
+        $path = $request->file('photo')->store('face_photos', 'public');
 
-        // Kirim gambar ke API Python
-        $client = new Client();
-        $response = $client->post('http://127.0.0.1:5000/predict', [
-            'multipart' => [
-                [
-                    'name'     => 'file',
-                    'contents' => fopen($image->getPathname(), 'r'),
-                    'filename' => $image->getClientOriginalName(),
-                ],
-            ],
+        $faceRecognition = FaceRecognition::create([
+            'user_id' => $request->user_id,
+            'nik' => $request->nik,
+            'name' => $request->name,
+            'address' => $request->address,
+            'photo' => $path,
         ]);
 
-        // Ambil respons dari API Python
-        $result = json_decode($response->getBody()->getContents(), true);
+        return response()->json(['message' => 'Face recognition data saved successfully', 'data' => $faceRecognition], 201);
+    }
 
-        return response()->json($result);
+    public function show($id)
+    {
+        $face = FaceRecognition::find($id);
+        if (!$face) {
+            return response()->json(['message' => 'Face recognition data not found'], 404);
+        }
+        return response()->json($face);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $face = FaceRecognition::find($id);
+        if (!$face) {
+            return response()->json(['message' => 'Face recognition data not found'], 404);
+        }
+
+        $face->update($request->all());
+        return response()->json(['message' => 'Face recognition data updated successfully', 'data' => $face]);
+    }
+
+    public function destroy($id)
+    {
+        $face = FaceRecognition::find($id);
+        if (!$face) {
+            return response()->json(['message' => 'Face recognition data not found'], 404);
+        }
+
+        $face->delete();
+        return response()->json(['message' => 'Face recognition data deleted successfully']);
     }
 }
